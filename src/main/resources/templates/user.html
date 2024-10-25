@@ -1,11 +1,65 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Spring Security Example</title>
+    <meta charset="UTF-8">
+    <title>User Details</title>
 </head>
 <body>
-<h1>User, welcome spring boot security page!</h1>
 
+<h1>User Details</h1>
+
+<p>
+    <strong>Name:</strong>
+    <span th:text="${user.name}">name</span>
+</p>
+
+<p>
+    <strong>Surname:</strong>
+    <span th:text="${user.surname}">surname</span>
+</p>
+
+<p>
+    <strong>Sex:</strong>
+    <span th:text="${user.sex == 'male' ? 'Male' : 'Female'}">sex</span>
+</p>
+
+<p>
+    <strong>City:</strong>
+    <span th:text="${user.city}">city</span>
+</p>
+
+<br/>
+
+<div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+    <form th:action="@{/admin/user/edit}" method="get">
+        <input type="hidden" name="id" th:value="${user.id}" />
+        <button type="submit">Edit</button>
+    </form>
+</div>
+
+<br/>
+
+<div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+    <form th:action="@{/admin/user(id=${user.getId()})}" th:method="post">
+        <button type="submit">Delete</button>
+    </form>
+</div>
+
+<br/>
+<br/>
+
+<div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+    <a th:href="@{/admin}">
+        <button type="button">Admin Panel</button>
+    </a>
+</div>
+
+<br/>
+<br/>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
 
 </body>
 </html>
