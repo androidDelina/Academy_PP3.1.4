@@ -6,25 +6,29 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users312")
+@Table(name = "user312")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private int id;
 
-    @Column(name = "username")
     private String username;
 
-    @Column(name = "password")
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
-    private Set<Role> roles;
+    @ManyToMany(cascade = {
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "is_account_non_expired")
     private Boolean isAccountNonExpired;
@@ -38,19 +42,39 @@ public class User implements UserDetails {
     @Column(name = "is_enabled")
     private Boolean isEnabled;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname")
     private String surname;
 
-    @Column(name = "sex")
     private String sex;
 
-    @Column(name = "city")
     private String city;
 
     public User() {
+    }
+
+    public User(String username,
+                String password,
+                Set<Role> roles,
+                Boolean isAccountNonExpired,
+                Boolean isAccountNonLocked,
+                Boolean isCredentialsNonExpired,
+                Boolean isEnabled,
+                String name,
+                String surname,
+                String sex,
+                String city) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+        this.isAccountNonExpired = isAccountNonExpired;
+        this.isAccountNonLocked = isAccountNonLocked;
+        this.isCredentialsNonExpired = isCredentialsNonExpired;
+        this.isEnabled = isEnabled;
+        this.name = name;
+        this.surname = surname;
+        this.sex = sex;
+        this.city = city;
     }
 
     public int getId() {

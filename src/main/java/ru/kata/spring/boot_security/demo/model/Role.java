@@ -3,28 +3,31 @@ package ru.kata.spring.boot_security.demo.model;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "roles312")
+@Table(name = "role312")
 public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private int id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
 
-    @Column(name = "role")
     private String role;
 
     public Role() {
     }
 
-    public Role(User user, String role) {
-        this.user = user;
+    public Role(Set<User> users, String role) {
+        this.users = users;
+        this.role = role;
+    }
+
+    public Role(String role) {
         this.role = role;
     }
 
@@ -33,12 +36,12 @@ public class Role implements GrantedAuthority {
         return role;
     }
 
-    public User getUser() {
-        return user;
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
     public String getRole() {
@@ -57,11 +60,5 @@ public class Role implements GrantedAuthority {
         this.id = id;
     }
 
-    @Override
-    public String toString() {
-        return "Role{" +
-                "user id =" + user.getId() +
-                ", role='" + role + '\'' +
-                '}';
-    }
+
 }

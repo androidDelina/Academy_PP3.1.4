@@ -1,24 +1,27 @@
-package ru.kata.spring.boot_security.demo.Service;
+package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.kata.spring.boot_security.demo.dao.RoleRepository;
 import ru.kata.spring.boot_security.demo.dao.UserRepository;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
 public class AppServiceImpl implements AppService, UserDetailsService {
 
     private UserRepository userRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    public AppServiceImpl(UserRepository userRepository) {
+    public AppServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -42,13 +45,21 @@ public class AppServiceImpl implements AppService, UserDetailsService {
     }
 
     @Override
-    @Transactional
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
     @Override
-    @Transactional
+    public Role getRoleByName(String roleName) {
+        return roleRepository.findByName(roleName);
+    }
+
+    @Override
+    public void addOrUpdateRole(Role role) {
+        roleRepository.save(role);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = getUserByUsername(username);
         if (user == null) {

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.Service.AppService;
+import ru.kata.spring.boot_security.demo.service.AppService;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.util.RandomPasswordUsernameGenerator;
@@ -30,7 +30,8 @@ public class AdminController {
     }
 
     @PostMapping()
-    public String createUser(@ModelAttribute User user, @RequestParam(name = "roleString", required = false) String roleString) {
+    public String createUser(@ModelAttribute User user,
+                             @RequestParam(name = "isAdmin", required = false) String isAdmin) {
         int userId = user.getId();
         user.setUsername(RandomPasswordUsernameGenerator.generateUsername(
                 user.getName()+user.getSurname(),
@@ -43,10 +44,17 @@ public class AdminController {
         user.setAccountNonLocked(true);
         user.setCredentialsNonExpired(true);
 
+//        Set<Role> roles = new HashSet<>();
+//        roles.add(new Role(user, "ROLE_USER"));
+//        if (roleString != null) {
+//            roles.add(new Role(user, roleString));
+//        }
+//        user.setRoles(roles);
+
         Set<Role> roles = new HashSet<>();
-        roles.add(new Role(user, "ROLE_USER"));
-        if (roleString != null) {
-            roles.add(new Role(user, roleString));
+        roles.add(service.getRoleByName("ROLE_USER"));
+        if (isAdmin != null) {
+            roles.add(service.getRoleByName(isAdmin));
         }
         user.setRoles(roles);
 
