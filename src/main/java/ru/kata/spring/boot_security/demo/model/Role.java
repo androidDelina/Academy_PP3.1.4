@@ -60,5 +60,10 @@ public class Role implements GrantedAuthority {
         this.id = id;
     }
 
-
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(role);
+        String roleStr = builder.substring(5, role.length());
+        return roleStr;
+    }
 }

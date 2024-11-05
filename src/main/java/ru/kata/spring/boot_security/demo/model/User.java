@@ -77,6 +77,14 @@ public class User implements UserDetails {
         this.city = city;
     }
 
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
     public int getId() {
         return id;
     }
@@ -99,14 +107,6 @@ public class User implements UserDetails {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
     }
 
     public String getCity() {
@@ -163,6 +163,17 @@ public class User implements UserDetails {
 
     public void setEnabled(Boolean enabled) {
         isEnabled = enabled;
+    }
+
+    public String getRolesStrSplit() {
+        StringBuilder sb = new StringBuilder();
+        for (Role role: roles) {
+            sb.append(role);
+            if (roles.iterator().hasNext()) {
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
     }
 
     @Override

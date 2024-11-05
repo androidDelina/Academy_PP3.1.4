@@ -9,6 +9,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.util.RandomPasswordUsernameGenerator;
 
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,9 +25,12 @@ public class AdminController {
     }
 
     @GetMapping()
-    public String getAllUsers(Model model) {
+    public String getAllUsers(Model model, Principal principal) {
         model.addAttribute("users", service.getAllUsers());
-        return "users";
+        model.addAttribute("newUser", new User());
+        model.addAttribute("user", service.getUserByUsername(principal.getName()));
+
+        return "/admin/users";
     }
 
     @PostMapping()
@@ -44,13 +48,6 @@ public class AdminController {
         user.setAccountNonLocked(true);
         user.setCredentialsNonExpired(true);
 
-//        Set<Role> roles = new HashSet<>();
-//        roles.add(new Role(user, "ROLE_USER"));
-//        if (roleString != null) {
-//            roles.add(new Role(user, roleString));
-//        }
-//        user.setRoles(roles);
-
         Set<Role> roles = new HashSet<>();
         roles.add(service.getRoleByName("ROLE_USER"));
         if (isAdmin != null) {
@@ -63,42 +60,38 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @GetMapping("/new")
-    public String addNewUserForm(Model model) {
-        model.addAttribute("user", new User());
-        return "addUser";
-    }
+    @PostMapping("/{id}")
+    public String updateUser (@ModelAttribute("user") User user, @PathVariable("id") int id, @RequestParam(name = "isAdminUpdate", required = false) String isAdminUpdate) {
 
-    @GetMapping("/user/{id}")
-    public String getUserById(@PathVariable("id") int id, Model model) {
-        model.addAttribute("user", service.getUserById(id));
-        return "user";
-    }
-
-    @PostMapping("/user/edit")
-    public String updateUser(@ModelAttribute User user) {
-
-        User existingUser = service.getUserById(user.getId());
+        User existingUser = service.getUserById(id);
+        System.out.println(existingUser.getId());
 
         existingUser.setName(user.getName());
         existingUser.setSurname(user.getSurname());
         existingUser.setSex(user.getSex());
         existingUser.setCity(user.getCity());
 
-        System.out.println(user);
+        Set<Role> roles = existingUser.getRoles();
+        if (roles.contains(service.getRoleByName("ROLE_ADMIN"))) {
+            if (isAdminUpdate == null) {
+                roles.remove(service.getRoleByName("ROLE_ADMIN"));
+            }
+        }
+
+        if (!roles.contains(service.getRoleByName(isAdminUpdate))) {
+            if (isAdminUpdate != null) {
+                roles.add(service.getRoleByName(isAdminUpdate));
+            }
+        }
+        existingUser.setRoles(roles);
+
         service.addOrUpdateUser(existingUser);
         return "redirect:/admin";
     }
 
-    @PostMapping("/user")
-    public String deleteUser(@RequestParam("id") int id) {
+    @PostMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") int id) {
         service.deleteUser(id);
         return "redirect:/admin";
-    }
-
-    @GetMapping("/user/edit")
-    public String getEditForm(@RequestParam("id") int id, Model model) {
-        model.addAttribute("user", service.getUserById(id));
-        return "editUser";
     }
 }
