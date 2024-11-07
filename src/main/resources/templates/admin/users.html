@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
@@ -32,10 +32,10 @@
                 <div aria-orientation="vertical" class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist">
                     <a aria-controls="v-pills-profile" aria-selected="true" class="nav-link active"
                        data-bs-target="#admin" data-bs-toggle="tab"
-                       role="tab" th:if="${user.getRolesStrSplit().contains('ADMIN')}">Admin</a>
+                       role="tab" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
                     <a aria-controls="v-pills-profile" aria-selected="false" class="nav-link"
                        data-bs-target="#user"
-                       data-bs-toggle="tab" role="tab" th:if="${user.getRolesStrSplit().contains('USER')}">User</a>
+                       data-bs-toggle="tab" role="tab" sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">User</a>
                 </div>
             </div>
             <div class="col-10 px-0">
