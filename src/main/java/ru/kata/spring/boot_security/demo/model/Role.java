@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "role312")
+@Table(name = "role313")
 public class Role implements GrantedAuthority {
 
     @Id

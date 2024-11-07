@@ -35,7 +35,7 @@
                        role="tab" th:if="${user.getRolesStrSplit().contains('ADMIN')}">Admin</a>
                     <a aria-controls="v-pills-profile" aria-selected="false" class="nav-link"
                        data-bs-target="#user"
-                       data-bs-toggle="tab" role="tab">User</a>
+                       data-bs-toggle="tab" role="tab" th:if="${user.getRolesStrSplit().contains('USER')}">User</a>
                 </div>
             </div>
             <div class="col-10 px-0">
@@ -175,14 +175,19 @@
                                                                             </select>
                                                                             <br>
                                                                             <br>
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" id="roleAdminUpdate"
-                                                                                   name="isAdminUpdate"
-                                                                                   value="ROLE_ADMIN"
-                                                                                   th:checked="${user.getRolesStrSplit().contains('ADMIN')}">
-                                                                            <label for="roleAdminUpdate">
-                                                                                User is admin
-                                                                            </label>
+                                                                            <label for="rolesUpdate"><b>Role</b></label>
+                                                                            <select class="form-control"
+                                                                                    id="rolesUpdate"
+                                                                                    multiple="multiple"
+                                                                                    name="rolesUpdate"
+                                                                                    style="height: 60px;">
+                                                                                <option th:each="role : ${roles}"
+                                                                                        th:text="${role.getRole()}"
+                                                                                        th:value="${role.getId()}">
+                                                                                    Role name
+                                                                                </option>
+                                                                            </select>
+                                                                            <br><br>
                                                                             <br>
                                                                             <br>
                                                                         </div>
@@ -268,15 +273,19 @@
                                                                             </select>
                                                                             <br>
                                                                             <br>
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" id="roleAdminDelete"
-                                                                                   name="isAdminUpdate"
-                                                                                   value="ROLE_ADMIN"
-                                                                                   th:checked="${user.getRolesStrSplit().contains('ADMIN')}"
-                                                                                   disabled>
-                                                                            <label for="roleAdminDelete">
-                                                                                User is admin
-                                                                            </label>
+                                                                            <label for="rolesDelete"><b>Role</b></label>
+                                                                            <select class="form-control"
+                                                                                    id="rolesDelete"
+                                                                                    multiple="multiple"
+                                                                                    name="rolesDelete"
+                                                                                    style="height: 60px;" disabled>
+                                                                                <option th:each="role : ${user.roles}"
+                                                                                        th:text="${role.getRole()}"
+                                                                                        th:value="${role.getId()}">
+                                                                                    Role name
+                                                                                </option>
+                                                                            </select>
+                                                                            <br><br>
                                                                             <br>
                                                                         </div>
                                                                         <div class="modal-footer">
@@ -317,13 +326,29 @@
                                                                th:type="text"
                                                                th:value="*{name}"/>
                                                         <br>
-                                                        <label class="form-label" for="surnameNew"><b>Last
-                                                            name</b></label>
+                                                        <label class="form-label"
+                                                               for="surnameNew"><b>Surname</b></label>
                                                         <input class="form-control" id="surnameNew"
                                                                placeholder="Enter surname" required
                                                                th:name="surname"
                                                                th:type="text"
                                                                th:value="*{surname}"/>
+                                                        <br>
+                                                        <label class="form-label"
+                                                               for="usernameNew"><b>Username</b></label>
+                                                        <input class="form-control" id="usernameNew"
+                                                               placeholder="Enter username" required
+                                                               th:name="username"
+                                                               th:type="text"
+                                                               th:value="*{username}"/>
+                                                        <br>
+                                                        <label class="form-label"
+                                                               for="passwordNew"><b>Password</b></label>
+                                                        <input class="form-control" id="passwordNew"
+                                                               placeholder="Enter password" required
+                                                               th:name="password"
+                                                               th:type="password"
+                                                               th:value="*{password}"/>
                                                         <br>
                                                         <label class="form-label" for="gender"><b>Enter
                                                             gender:</b></label>
@@ -351,13 +376,18 @@
                                                         </select>
                                                         <br>
                                                         <br>
-                                                        <input class="form-check-input" type="checkbox" id="roleAdmin"
-                                                               name="isAdmin" value="ROLE_ADMIN">
-                                                        <label class="form-check-label" for="roleAdmin">
-                                                            User is admin
-                                                        </label>
-                                                        <br>
-                                                        <br>
+                                                        <label for="rolesNew"><b>Role</b></label>
+                                                        <select class="form-control" id="rolesNew"
+                                                                multiple="multiple"
+                                                                name="rolesNew"
+                                                                style="height: 40px;" required>
+                                                            <option th:each="role : ${user.roles}"
+                                                                    th:text="${role.getRole()}"
+                                                                    th:value="${role.getId()}">
+                                                                Role name
+                                                            </option>
+                                                        </select>
+                                                        <br><br>
                                                         <div class="modal-footer">
                                                             <button class="btn btn-success col-8 mx-auto" type="submit">
                                                                 Add user

@@ -10,16 +10,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "user312")
+@Table(name = "user313")
 public class User implements UserDetails {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    private String username;
-
-    private String password;
 
     @ManyToMany(cascade = {
             CascadeType.MERGE
@@ -30,24 +27,34 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @Column(name = "is_account_non_expired")
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "password")
+    private String password;
+
+    @Transient
     private Boolean isAccountNonExpired;
 
-    @Column(name = "is_account_non_locked")
+    @Transient
     private Boolean isAccountNonLocked;
 
-    @Column(name = "is_credentials_non_expired")
+    @Transient
     private Boolean isCredentialsNonExpired;
 
-    @Column(name = "is_enabled")
+    @Transient
     private Boolean isEnabled;
 
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "surname")
     private String surname;
 
+    @Column(name = "sex")
     private String sex;
 
+    @Column(name = "city")
     private String city;
 
     public User() {
@@ -56,10 +63,6 @@ public class User implements UserDetails {
     public User(String username,
                 String password,
                 Set<Role> roles,
-                Boolean isAccountNonExpired,
-                Boolean isAccountNonLocked,
-                Boolean isCredentialsNonExpired,
-                Boolean isEnabled,
                 String name,
                 String surname,
                 String sex,
@@ -67,10 +70,6 @@ public class User implements UserDetails {
         this.username = username;
         this.password = password;
         this.roles = roles;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;
         this.name = name;
         this.surname = surname;
         this.sex = sex;
@@ -134,7 +133,7 @@ public class User implements UserDetails {
     }
 
     public Boolean getAccountNonExpired() {
-        return isAccountNonExpired;
+        return true;
     }
 
     public void setAccountNonExpired(Boolean accountNonExpired) {
@@ -142,7 +141,7 @@ public class User implements UserDetails {
     }
 
     public Boolean getAccountNonLocked() {
-        return isAccountNonLocked;
+        return true;
     }
 
     public void setAccountNonLocked(Boolean accountNonLocked) {
@@ -150,7 +149,7 @@ public class User implements UserDetails {
     }
 
     public Boolean getCredentialsNonExpired() {
-        return isCredentialsNonExpired;
+        return true;
     }
 
     public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
@@ -158,7 +157,7 @@ public class User implements UserDetails {
     }
 
     public Boolean getEnabled() {
-        return isEnabled;
+        return true;
     }
 
     public void setEnabled(Boolean enabled) {
@@ -167,7 +166,7 @@ public class User implements UserDetails {
 
     public String getRolesStrSplit() {
         StringBuilder sb = new StringBuilder();
-        for (Role role: roles) {
+        for (Role role : roles) {
             sb.append(role);
             if (roles.iterator().hasNext()) {
                 sb.append(" ");

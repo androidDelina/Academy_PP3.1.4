@@ -8,10 +8,20 @@ import java.util.List;
 
 public interface AppService {
     List<User> getAllUsers();
+
     User getUserById(int id);
+
     void addOrUpdateUser(User user);
+
     void deleteUser(int id);
+
     User getUserByUsername(String username);
+
     Role getRoleByName(String roleName);
+
+    Role getRoleById(int id);
+
     void addOrUpdateRole(Role role);
+
+    List<Role> getAllRoles();
 }

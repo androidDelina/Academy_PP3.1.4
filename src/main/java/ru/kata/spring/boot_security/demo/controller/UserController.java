@@ -23,8 +23,8 @@ public class UserController {
 
     @GetMapping()
     public String getUserInfo(Model model) {
-         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         User user = (User) authentication.getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
         model.addAttribute("user", user);
         return "user";
     }
