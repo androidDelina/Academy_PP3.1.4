@@ -14,7 +14,6 @@ import java.util.Set;
 public class User implements UserDetails {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -27,34 +26,16 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @Column(name = "username")
     private String username;
 
-    @Column(name = "password")
     private String password;
 
-    @Transient
-    private Boolean isAccountNonExpired;
-
-    @Transient
-    private Boolean isAccountNonLocked;
-
-    @Transient
-    private Boolean isCredentialsNonExpired;
-
-    @Transient
-    private Boolean isEnabled;
-
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname")
     private String surname;
 
-    @Column(name = "sex")
     private String sex;
 
-    @Column(name = "city")
     private String city;
 
     public User() {
@@ -132,38 +113,6 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public Boolean getAccountNonExpired() {
-        return true;
-    }
-
-    public void setAccountNonExpired(Boolean accountNonExpired) {
-        isAccountNonExpired = accountNonExpired;
-    }
-
-    public Boolean getAccountNonLocked() {
-        return true;
-    }
-
-    public void setAccountNonLocked(Boolean accountNonLocked) {
-        isAccountNonLocked = accountNonLocked;
-    }
-
-    public Boolean getCredentialsNonExpired() {
-        return true;
-    }
-
-    public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
-        isCredentialsNonExpired = credentialsNonExpired;
-    }
-
-    public Boolean getEnabled() {
-        return true;
-    }
-
-    public void setEnabled(Boolean enabled) {
-        isEnabled = enabled;
-    }
-
     public String getRolesStrSplit() {
         StringBuilder sb = new StringBuilder();
         for (Role role : roles) {
@@ -179,13 +128,9 @@ public class User implements UserDetails {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", roles=" + roles +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", roles=" + roles +
-                ", isAccountNonExpired=" + isAccountNonExpired +
-                ", isAccountNonLocked=" + isAccountNonLocked +
-                ", isCredentialsNonExpired=" + isCredentialsNonExpired +
-                ", isEnabled=" + isEnabled +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", sex='" + sex + '\'' +
@@ -210,21 +155,21 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return getAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return getAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return getCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return getEnabled();
+        return true;
     }
 }

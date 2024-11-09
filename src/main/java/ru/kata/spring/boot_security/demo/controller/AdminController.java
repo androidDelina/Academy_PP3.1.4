@@ -1,18 +1,15 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.AppService;
 
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
@@ -37,41 +34,15 @@ public class AdminController {
     @PostMapping()
     public String createUser(@ModelAttribute User user,
                              @RequestParam(name = "rolesNew") List<Integer> rolesID) {
-        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
-
-        Set<Role> roles = new HashSet<>();
-        for (int roleId : rolesID) {
-            roles.add(service.getRoleById(roleId));
-        }
-        user.setRoles(roles);
-
-
-        service.addOrUpdateUser(user);
-        System.out.println(user);
+        service.createUser(user, rolesID);
         return "redirect:/admin";
     }
 
     @PostMapping("/{id}")
-    public String updateUser(@ModelAttribute("user") User user, @PathVariable("id") int id, @RequestParam(name = "rolesUpdate", required = false) List<Integer> rolesId) {
-
-        User existingUser = service.getUserById(id);
-        System.out.println(existingUser.getId());
-
-        existingUser.setName(user.getName());
-        existingUser.setSurname(user.getSurname());
-        existingUser.setSex(user.getSex());
-        existingUser.setCity(user.getCity());
-
-        Set<Role> roles = existingUser.getRoles();
-        if (rolesId != null) {
-            roles = new HashSet<>();
-            for (int roleId : rolesId) {
-                roles.add(service.getRoleById(roleId));
-            }
-        }
-        existingUser.setRoles(roles);
-
-        service.addOrUpdateUser(existingUser);
+    public String updateUser(@ModelAttribute("user") User user, @PathVariable("id") int id,
+                             @RequestParam(name = "rolesUpdate", required = false) List<Integer> rolesId,
+                             @RequestParam(name = "cityEdit", required = false) String city) {
+        service.updateUser(user, id, rolesId, city);
         return "redirect:/admin";
     }
 

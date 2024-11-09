@@ -1,14 +1,14 @@
 package ru.kata.spring.boot_security.demo.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
-import ru.kata.spring.boot_security.demo.service.AppService;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.service.AppService;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
 
 @Controller
 public class AutoAddUsers {
@@ -30,9 +30,8 @@ public class AutoAddUsers {
         Role userRole = appService.getRoleByName("ROLE_USER");
         Role adminRole = appService.getRoleByName("ROLE_ADMIN");
 
-
         User user = new User("user",
-                BCrypt.hashpw("user", BCrypt.gensalt()),
+                "user",
                 new HashSet<>(Arrays.asList(userRole)),
                 "user",
                 "user",
@@ -40,14 +39,15 @@ public class AutoAddUsers {
                 "Moscow");
 
         User admin = new User("admin",
-                BCrypt.hashpw("admin", BCrypt.gensalt()),
+                "admin",
                 new HashSet<>(Arrays.asList(userRole, adminRole)),
                 "admin",
                 "admin",
                 "male",
                 "Moscow");
 
-        appService.addOrUpdateUser(user);
-        appService.addOrUpdateUser(admin);
+
+        appService.createUser(user, Arrays.asList(userRole.getId()));
+        appService.createUser(admin, Arrays.asList(userRole.getId(), adminRole.getId()));
     }
 }
