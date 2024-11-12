@@ -1,7 +1,6 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +8,6 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.AppService;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -32,17 +30,14 @@ public class AdminController {
     }
 
     @PostMapping()
-    public String createUser(@ModelAttribute User user,
-                             @RequestParam(name = "rolesNew") List<Integer> rolesID) {
-        service.createUser(user, rolesID);
+    public String createUser(@ModelAttribute User user) {
+        service.createUser(user);
         return "redirect:/admin";
     }
 
     @PostMapping("/{id}")
-    public String updateUser(@ModelAttribute("user") User user, @PathVariable("id") int id,
-                             @RequestParam(name = "rolesUpdate", required = false) List<Integer> rolesId,
-                             @RequestParam(name = "cityEdit", required = false) String city) {
-        service.updateUser(user, id, rolesId, city);
+    public String updateUser(@ModelAttribute("user") User user, @PathVariable("id") int id) {
+        service.updateUser(user, id);
         return "redirect:/admin";
     }
 

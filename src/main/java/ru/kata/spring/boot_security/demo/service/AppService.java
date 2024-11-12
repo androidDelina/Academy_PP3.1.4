@@ -5,16 +5,15 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
-import java.util.Set;
 
 public interface AppService {
     List<User> getAllUsers();
 
     User getUserById(int id);
 
-    void createUser(User user, List<Integer> rolesID);
+    void createUser(User user);
 
-    void updateUser(User user, int id, List<Integer> rolesId, String cit);
+    void updateUser(User user, int id);
 
     void deleteUser(int id);
 
@@ -28,5 +27,4 @@ public interface AppService {
 
     List<Role> getAllRoles();
 
-    Set<Role> getRolesByIds(List<Integer> ids, Set<Role> existingRoles);
 }

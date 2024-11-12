@@ -47,7 +47,7 @@ public class AutoAddUsers {
                 "Moscow");
 
 
-        appService.createUser(user, Arrays.asList(userRole.getId()));
-        appService.createUser(admin, Arrays.asList(userRole.getId(), adminRole.getId()));
+        appService.createUser(user);
+        appService.createUser(admin);
     }
 }

@@ -12,9 +12,7 @@ import ru.kata.spring.boot_security.demo.dao.UserRepository;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class AppServiceImpl implements AppService, UserDetailsService {
@@ -46,29 +44,32 @@ public class AppServiceImpl implements AppService, UserDetailsService {
     }
 
     @Override
-    public void createUser(User user, List<Integer> rolesID) {
+    public void createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(getRolesByIds(rolesID, user.getRoles()));
 
         userRepository.save(user);
     }
 
-    @Override
-    public void updateUser(User user, int id, List<Integer> rolesId, String city) {
-        User existingUser = getUserById(id);
-
-        existingUser.setName(user.getName());
-        existingUser.setSurname(user.getSurname());
-        existingUser.setSex(user.getSex());
-        existingUser.setCity(city);
-        existingUser.setUsername(user.getUsername());
-        if (!existingUser.getPassword().equals(user.getPassword())) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+    public void updateUser(User user, int id) {
+        System.out.println(user.getPassword());
+        if (user.getPassword().isEmpty() || user.getPassword() == null) {
+            System.out.println("null password");
+            user.setPassword(getUserById(id).getPassword());
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            System.out.println("changed password");
         }
-        existingUser.setRoles(getRolesByIds(rolesId, existingUser.getRoles()));
+        System.out.println(user.getPassword());
 
-        userRepository.save(existingUser);
+
+        if (user.getRoles().isEmpty()) {
+            user.setRoles(getUserById(id).getRoles());
+        }
+        user.setId(id);
+        System.out.println(user.getPassword());
+        userRepository.save(user);
     }
+
 
     @Override
     public void deleteUser(int id) {
@@ -107,17 +108,5 @@ public class AppServiceImpl implements AppService, UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         return user;
-    }
-
-    @Override
-    public Set<Role> getRolesByIds(List<Integer> ids, Set<Role> existingRoles) {
-        Set<Role> roles = existingRoles;
-        if (ids != null) {
-            roles = new HashSet<>();
-            for (int roleId : ids) {
-                roles.add(getRoleById(roleId));
-            }
-        }
-        return roles;
     }
 }
