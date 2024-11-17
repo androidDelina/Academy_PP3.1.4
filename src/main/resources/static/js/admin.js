@@ -1,6 +1,7 @@
-console.log('Скрипт подключен и работает');
-const url = 'http://localhost:8080/admin/api/users/';
-const urlRoles = 'http://localhost:8080/admin/api/roles/';
+let serverUrl = '';
+let usersApiUrl = '';
+let rolesApiUrl = '';
+
 const container = document.querySelector('.users_table_body');
 const newUserForm = document.getElementById('newUserForm');
 const editUserForm = document.getElementById('editUserForm');
@@ -23,9 +24,8 @@ const delId = document.getElementById('idDelete');
 const delName = document.getElementById('nameDelete');
 const delSurname = document.getElementById('surnameDelete');
 const delUsername = document.getElementById('usernameDelete');
-const delPassword = document.getElementById('deletePassword');
-const delCity = document.getElementById('deleteCity');
-const delRoles = document.getElementById('deleteRoles');
+const delCity = document.getElementById('cityDelete');
+const delRoles = document.getElementById('rolesDelete');
 
 const newName = document.getElementById('newFirstName');
 const newSurname = document.getElementById('newLastName');
@@ -34,13 +34,54 @@ const newPassword = document.getElementById('newPassword');
 const newCity = document.getElementById('newCity');
 const newRoles = document.getElementById('newRoles');
 
-
 let rolesArr = [];
-let userRolesArr = []
+let userRolesArr = [];
 let usersArr = [];
 
-const getAllUsers = (users) => {
 
+const initializeConfig = async () => {
+    try {
+        const response = await fetch('/api/config');
+        if (!response.ok) throw new Error('Ошибка при загрузке конфигурации');
+
+        const config = await response.json();
+        serverUrl = `${config.serverUrl}:${config.serverPort}`;
+        usersApiUrl = `${serverUrl}/admin/api/users/`;
+        rolesApiUrl = `${serverUrl}/admin/api/roles/`;
+
+
+        console.log(`Config loaded: ${serverUrl}`);
+        initializeApp();
+    } catch (error) {
+        console.error('Ошибка при загрузке конфигурации:', error);
+    }
+};
+
+const initializeApp = () => {
+    fetch(usersApiUrl)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            if (!Array.isArray(data)) throw new Error('Users data is not an array');
+            getAllUsers(data);
+        })
+        .catch(error => console.log('Ошибка при загрузке пользователей:', error));
+
+    fetch(rolesApiUrl)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            if (!Array.isArray(data)) throw new Error('Roles data is not an array');
+            getRoles(data);
+        })
+        .catch(error => console.log('Ошибка при загрузке ролей:', error));
+};
+
+const getAllUsers = (users) => {
     usersArr = [];
     users.forEach(user => {
         usersArr.push(user);
@@ -67,117 +108,79 @@ const getRoles = (roles) => {
     roles.forEach(role => {
         rolesOptions += `
             <option value="${role.id}">${role.role}</option>
-        `
+        `;
         rolesArr.push(role);
-    })
+    });
     newRoles.innerHTML = rolesOptions;
     editRoles.innerHTML = rolesOptions;
-
     delRoles.innerHTML = rolesOptions;
-}
-
-fetch(url)
-    .then(res => res.json())
-    .then(data => getAllUsers(data))
-    .catch(error => console.log(error));
-
-var allRoles;
-
-fetch(urlRoles)
-    .then(res => res.json())
-    .then(data => {
-        allRoles = data;
-        getRoles(allRoles)
-    });
+};
 
 const refreshListOfUsers = () => {
-    fetch(url)
+    fetch(usersApiUrl)
         .then(res => res.json())
         .then(data => {
             result = '';
-            getAllUsers(data)
+            getAllUsers(data);
         })
-}
+};
 
 const on = (element, event, selector, handler) => {
     element.addEventListener(event, e => {
         if (e.target.closest(selector)) {
-            handler(e)
+            handler(e);
         }
-    })
-}
-
+    });
+};
 
 const cities = ["Moscow", "Saint Petersburg"];
 on(document, 'click', '.btnDelete', e => {
     const row = e.target.parentNode.parentNode;
-    idForm = row.children[0].innerHTML;
+    const idForm = row.children[0].innerHTML;
     const firstNameForm = row.children[1].innerHTML;
     const lastNameForm = row.children[2].innerHTML;
     const usernameForm = row.children[3].innerHTML;
-    const passwordForm = row.children[4].innerHTML;
     const sexForm = row.children[5].innerHTML.trim();
     const cityForm = row.children[6].innerHTML.trim();
-    const userRoles = row.children[7].innerText.trim().split(', ');
 
     delId.value = idForm;
     delName.value = firstNameForm;
     delSurname.value = lastNameForm;
     delUsername.value = usernameForm;
-    delPassword.value = ''
 
-    // Установка значения пола
     document.querySelector('#maleDelete').checked = (sexForm === 'male');
-    document.querySelector('#femaleDelete').checked = (sexForm === 'female')
+    document.querySelector('#femaleDelete').checked = (sexForm === 'female');
 
-    delCity.innerHTML = ''; // Очищаем список перед добавлением городов
     cities.forEach(city => {
         const option = document.createElement('option');
         option.value = city;
         option.textContent = city;
         if (city === cityForm) {
-            option.selected = true; // Устанавливаем выбранный город
+            option.selected = true;
         }
         delCity.appendChild(option);
     });
 
     let rolesOptions = '';
-    console.log(usersArr)
-    console.log(idForm);
     let userRoless = usersArr.find(user => user.id == idForm)?.roles || [];
-
-    console.log(userRoless);
-    if (userRoless) {
-        userRoless.forEach(role => {
-            // const option = document.createElement('option');
-            // option.value = role.id;
-            // option.textContent = role.value;
-            rolesOptions += `
+    userRoless.forEach(role => {
+        rolesOptions += `
             <option value="${role.id}">${role.role}</option>
-        `
-            userRolesArr.push(role);
-        })
-    } else {
-        console.warn(`Roles not found for user at id: ${idForm}`);
-    }
-    console.log('Роли пользователя:', userRoless);
+        `;
+        userRolesArr.push(role);
+    });
+
     delRoles.innerHTML = rolesOptions;
-
-    console.log(delRoles)
     deleteUserModal.show();
-})
-
+});
 
 let idForm = 0;
 on(document, 'click', '.btnEdit', e => {
-    console.log('Открыто окно редактирования');
-
     const row = e.target.parentNode.parentNode;
     idForm = row.children[0].innerHTML;
     const firstNameForm = row.children[1].innerHTML;
     const lastNameForm = row.children[2].innerHTML;
     const usernameForm = row.children[3].innerHTML;
-    const passwordForm = row.children[4].innerHTML;
     const sexForm = row.children[5].innerHTML.trim();
     const cityForm = row.children[6].innerHTML.trim();
 
@@ -185,28 +188,25 @@ on(document, 'click', '.btnEdit', e => {
     editName.value = firstNameForm;
     editSurname.value = lastNameForm;
     editUsername.value = usernameForm;
-    editPassword.value = ''
 
-    // Установка значения пола
     document.querySelector('#maleUpdate').checked = (sexForm === 'male');
     document.querySelector('#femaleUpdate').checked = (sexForm === 'female');
 
     const citySelect = document.getElementById('editCity');
-    citySelect.innerHTML = ''; // Очищаем список перед добавлением городов
+    citySelect.innerHTML = ''; // Очищаем список городов
     cities.forEach(city => {
         const option = document.createElement('option');
         option.value = city;
         option.textContent = city;
         if (city === cityForm) {
-            option.selected = true; // Устанавливаем выбранный город
+            option.selected = true;
         }
         citySelect.appendChild(option);
     });
+
     editRoles.options.selectedIndex = -1;
     editUserModal.show();
-    console.log(editUserModal);
-})
-
+});
 
 btnCreate.addEventListener('click', () => {
     newName.value = '';
@@ -214,7 +214,7 @@ btnCreate.addEventListener('click', () => {
     newUsername.value = '';
     newPassword.value = '';
     const citySelect = document.getElementById('newCity');
-    citySelect.innerHTML = ''; // Очищаем список перед добавлением городов
+    citySelect.innerHTML = '';
     cities.forEach(city => {
         const option = document.createElement('option');
         option.value = city;
@@ -226,7 +226,7 @@ btnCreate.addEventListener('click', () => {
 
 deleteUserForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    fetch(url + delId.value, {
+    fetch(usersApiUrl + delId.value, {
         method: 'DELETE',
         headers: {
             'Content-type': 'application/json; charset=UTF-8'
@@ -254,33 +254,26 @@ newUserForm.addEventListener('submit', (e) => {
     const sexForm = document.querySelector('input[name="sex"]:checked').value;
     const cityForm = newCity.value;
 
-    const fetchFunction = async () => {
-        const fetchedData = await
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: newName.value,
-                    surname: newSurname.value,
-                    username: newUsername.value,
-                    password: newPassword.value,
-                    sex: sexForm,
-                    city: cityForm,
-                    roles: rolesJ
-                })
-            });
+    const newUser = {
+        name: newName.value,
+        surname: newSurname.value,
+        username: newUsername.value,
+        password: newPassword.value,
+        sex: sexForm,
+        city: cityForm,
+        roles: rolesJ
+    };
 
-        if (!fetchedData.ok) {
-            fetchedData.json()
-                .then(data => alert(data.message))
-        }
-        return fetchedData;
-    }
+    console.log(newUser);
 
-    fetchFunction()
-        .then(response => response.json())
+    fetch(usersApiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify(newUser)
+    })
+        .then(res => res.json())
         .catch(err => console.log(err))
         .then(refreshListOfUsers);
 
@@ -293,7 +286,9 @@ newUserForm.addEventListener('submit', (e) => {
     navtab2.classList.remove('active');
     tab1.classList.add('show', 'active');
     tab2.classList.remove('show', 'active');
-})
+
+    console.log(refreshListOfUsers);
+});
 
 editUserForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -311,51 +306,72 @@ editUserForm.addEventListener('submit', (e) => {
     const sexForm = document.querySelector('input[name="sex"]:checked').value;
     const cityForm = editCity.value;
 
-    const fetchFunction = async () => {
-        console.log(url + editId.value);
-        const fetchedData = await fetch(url + editId.value, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: editId.value,
-                name: editName.value,
-                surname: editSurname.value,
-                username: editUsername.value,
-                password: editPassword.value,
-                sex: sexForm,
-                city: cityForm,
-                roles: rolesJ
-            })
-        });
+    const updatedUser = {
+        id: editId.value,
+        name: editName.value,
+        surname: editSurname.value,
+        username: editUsername.value,
+        password: editPassword.value,
+        sex: sexForm,
+        city: cityForm,
+        roles: rolesJ
+    };
 
-        if (!fetchedData.ok) {
-            const errorData = await fetchedData.json();
-            alert(errorData.message);
-            return; // Завершаем функцию, если произошла ошибка
-        }
-
-        return fetchedData.json();
-    }
-
-    fetchFunction()
-        .then(refreshListOfUsers)
-        .catch(error => console.error("Error:", error));
+    fetch(usersApiUrl + editId.value, {
+        method: 'PUT',
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify(updatedUser)
+    })
+        .then(res => res.json())
+        .catch(err => console.log(err))
+        .then(refreshListOfUsers);
 
     editUserModal.hide();
+});
 
-})
+initializeConfig();
 
-const firstTabPill = document.querySelector('.nav-link.active');
-const firstTab = document.querySelector('.tab-pane.fade.show.active');
+document.addEventListener('DOMContentLoaded', function () {
+    function fetchUserInfo() {
+        fetch('/admin/api/users/current')  // Поменяйте на ваш реальный endpoint
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    populateUserInfo(data);
+                    updateNavInfo(data);
+                }
+            })
+            .catch(error => console.error('Error fetching user data:', error));
+    }
 
-window.onload = function () {
-    firstTabPill.className = 'nav-link active';
-    firstTab.className = 'tab-pane fade show active';
-}
+    function populateUserInfo(user) {
+        const tableBody = document.querySelector('.user_info_table_body');
 
+        const row = document.createElement('tr');
+        let userRoles = user.roles.map(role => role.role).join(' ');
+        row.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.surname}</td>
+            <td>${user.username}</td>
+            <td>${userRoles}</td>
+            <td>${user.sex}</td>
+            <td>${user.city}</td>
+        `;
 
+        tableBody.appendChild(row);
+    }
 
+    function updateNavInfo(user) {
+        const usernameNav = document.getElementById('usernameNav');
+        const rolesNav = document.getElementById('rolesNav');
 
+        usernameNav.textContent = user.username;
+        rolesNav.textContent = user.roles.map(role => role.role).join(', ');
+    }
+
+    fetchUserInfo();
+});
 

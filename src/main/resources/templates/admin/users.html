@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html class="h-100" lang="en"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html class="h-100" lang="en">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
@@ -13,11 +11,11 @@
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
         <p class="navbar-brand text-white">
-            <b><span class="align-middle" th:utext="${user.getUsername()}"></span></b>
+            <b><span class="align-middle" id="usernameNav"></span></b>
             <span class="align-middle">with roles:</span>
-            <span class="align-middle" th:utext="${user.getRolesStrSplit()}"></span>
+            <span class="align-middle" id="rolesNav"></span>
         </p>
-        <form method="post" th:action="@{/logout}">
+        <form method="post" action="/logout">
             <button class="btn btn-dark text-secondary" type="submit">Logout</button>
         </form>
     </div>
@@ -30,17 +28,15 @@
                 <div aria-orientation="vertical" class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist">
                     <a aria-controls="v-pills-profile" aria-selected="true" class="nav-link active"
                        data-bs-target="#admin" data-bs-toggle="tab"
-                       role="tab" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+                       role="tab">Admin</a>
                     <a aria-controls="v-pills-profile" aria-selected="false" class="nav-link"
                        data-bs-target="#user"
-                       data-bs-toggle="tab" role="tab"
-                       sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">User</a>
+                       data-bs-toggle="tab" role="tab">User</a>
                 </div>
             </div>
             <div class="col-10 px-0">
                 <div class="tab-content" id="homeTabContent">
-                    <div aria-labelledby="admin" class="tab-pane fade show active" id="admin" role="tabpanel"
-                         th:if="${user.getRolesStrSplit().contains('ADMIN')}">
+                    <div aria-labelledby="admin" class="tab-pane fade show active" id="admin" role="tabpanel">
                         <div class="container-fluid">
                             <h1 class="m-3 fw-bold">Admin panel</h1>
                             <ul class="nav nav-tabs" role="tablist">
@@ -116,8 +112,7 @@
                                                     <input class="form-control" id="newPassword"
                                                            placeholder="Enter password" required type="password"/>
                                                     <br>
-                                                    <label for="genderNew"><b>Enter
-                                                        gender:</b></label>
+                                                    <label for="genderNew"><b>Enter gender:</b></label>
                                                     <div class="form-check" id="genderNew">
 
                                                         <input class="form-check-input"
@@ -170,7 +165,8 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table table-striped table-hover">
+                                    <table class="table table-striped table-hover" id="user_info_table">
+                                        <thead>
                                         <tr>
                                             <th>Id</th>
                                             <th>Name</th>
@@ -180,13 +176,9 @@
                                             <th>Sex</th>
                                             <th>City</th>
                                         </tr>
-                                        <td th:utext="${user.getId()}">Id</td>
-                                        <td th:utext="${user.getName()}">Name</td>
-                                        <td th:utext="${user.getSurname()}">Surname</td>
-                                        <td th:utext="${user.getUsername()}">Username</td>
-                                        <td th:utext="${user.getRoles()}">Role</td>
-                                        <td th:utext="${user.getSex()}">Sex</td>
-                                        <td th:utext="${user.getCity()}">City</td>
+                                        </thead>
+                                        <tbody class="user_info_table_body">
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -195,6 +187,7 @@
                 </div>
             </div>
 
+            <!-- Edit and Delete Modals -->
             <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade"
                  id="editUserModal" tabindex="-1">
                 <form id="editUserForm">
@@ -206,7 +199,6 @@
                                         type="button"></button>
                             </div>
                             <div class="modal-body mx-auto col-7 text-center">
-
                                 <div>
                                     <label class="fw-bold pb-0 pt-2" for="editId">Id</label>
                                     <input class="form-control" id="editId" name="id" readonly
@@ -216,13 +208,12 @@
                                     <label class="fw-bold pb-0 pt-2"
                                            for="editFirstName">FirstName</label>
                                     <input class="form-control" id="editFirstName" name="firstName"
-                                           required type="text">
+                                           type="text">
                                 </div>
                                 <div>
-                                    <label class="fw-bold pb-0 pt-2"
-                                           for="editLastName">LastName</label>
+                                    <label class="fw-bold pb-0 pt-2" for="editLastName">LastName</label>
                                     <input class="form-control" id="editLastName" name="lastName"
-                                           required type="text">
+                                           type="text">
                                 </div>
                                 <div>
                                     <label class="fw-bold pb-0 pt-2" for="editUsername">Username</label>
@@ -231,99 +222,74 @@
                                 </div>
                                 <div>
                                     <label class="fw-bold pb-0 pt-2" for="editPassword">Password</label>
-                                    <input class="form-control" id="editPassword" name="username"
-                                           type="text">
+                                    <input class="form-control" id="editPassword" name="password"
+                                           type="password">
                                 </div>
-                                <br>
-                                <label for="genderUpdate"><b>Enter
-                                    gender:</b></label>
-                                <div class="form-check" id="genderUpdate">
-
-                                    <input class="form-check-input"
-                                           type="radio" name="sex"
-                                           value="male"
-                                           id="maleUpdate">
-                                    <label for="maleUpdate">Male</label>
-                                    <br>
-                                    <input class="form-check-input"
-                                           type="radio" name="sex"
-                                           value="female"
-                                           id="femaleUpdate">
-                                    <label for="femaleDelete">Female</label>
+                                <div>
+                                    <label class="fw-bold pb-0 pt-2">Sex</label>
+                                    <div class="form-check" id="genderUpdate">
+                                        <input class="form-check-input" id="maleUpdate" name="sex" type="radio"
+                                               value="male">
+                                        <label class="form-check-label" for="maleUpdate">Male</label>
+                                        <br>
+                                        <input class="form-check-input" id="femaleUpdate" name="sex" type="radio"
+                                               value="female">
+                                        <label class="form-check-label" for="femaleUpdate">Female</label>
+                                    </div>
                                 </div>
-                                <br>
-                                <label for="editCity"><b>Enter city:</b></label>
-                                <br>
-                                <select id="editCity"
-                                        name="selectedCity"
-                                        class="custom-select">
-                                </select>
-                                <br>
-                                <br>
-                                <label for="editRoles"><b>Role</b></label>
-                                <br>
-                                <select class="form-control"
-                                        id="editRoles"
-                                        multiple
-                                        name="selectedRoles"
-                                        size="2">
-                                </select>
-                                <br><br>
+                                <div>
+                                    <label class="fw-bold pb-0 pt-2" for="editCity">City</label>
+                                    <select class="form-select" id="editCity" name="city"></select>
+                                </div>
+                                <div>
+                                    <label class="fw-bold pb-0 pt-2" for="editRoles">Roles</label>
+                                    <select class="form-select" id="editRoles" name="roles" multiple></select>
+                                </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
-                                        type="button">Close
-                                </button>
-                                <button class="btn btn-primary btn-sm" type="submit">Edit</button>
+                                <button class="btn btn-success" type="submit">Save</button>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-
-            <div aria-hidden="true" aria-labelledby="staticBackdropLabel"
-                 class="modal fade" id="deleteUserModal"
-                 tabindex="-1">
+            <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade"
+                 id="deleteUserModal" tabindex="-1">
                 <form id="deleteUserForm">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="staticBackdropLabel">Delete
-                                    User</h5>
+                                <h5 class="modal-title" id="staticBackdropLabel">Delete user</h5>
                                 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal"
                                         type="button"></button>
                             </div>
                             <div class="modal-body mx-auto col-7 text-center">
                                 <div>
                                     <label class="fw-bold pb-0 pt-2" for="idDelete">Id</label>
-                                    <input class="form-control" id="idDelete" name="id" disabled
+                                    <input class="form-control" id="idDelete" name="id" readonly
                                            type="text">
                                 </div>
                                 <div>
-                                    <label class="fw-bold pb-0 pt-2"
-                                           for="nameDelete">First Name</label>
-                                    <input class="form-control" id="nameDelete" name="firstName" disabled
-                                           required type="text">
+                                    <label class="fw-bold pb-0 pt-2" for="nameDelete">First Name</label>
+                                    <input class="form-control" id="nameDelete" name="firstName" readonly
+                                           type="text">
                                 </div>
                                 <div>
-                                    <label class="fw-bold pb-0 pt-2"
-                                           for="surnameDelete">Last Name</label>
-                                    <input class="form-control" id="surnameDelete" name="lastName" disabled
-                                           required type="text">
+                                    <label class="fw-bold pb-0 pt-2" for="surnameDelete">Surname</label>
+                                    <input class="form-control" id="surnameDelete" name="lastName" readonly
+                                           type="text">
                                 </div>
                                 <div>
                                     <label class="fw-bold pb-0 pt-2" for="usernameDelete">Username</label>
-                                    <input class="form-control" id="usernameDelete" name="username" disabled
+                                    <input class="form-control" id="usernameDelete" name="username" readonly
                                            type="text">
                                 </div>
                                 <div>
                                     <label class="fw-bold pb-0 pt-2" for="deletePassword">Password</label>
-                                    <input class="form-control" id="deletePassword" name="password" disabled
-                                           type="text">
+                                    <input class="form-control" id="deletePassword" name="password" readonly
+                                           type="password">
                                 </div>
-                                <br>
-                                <label for="genderDelete"><b>Enter
-                                    gender:</b></label>
+
                                 <div class="form-check" id="genderDelete">
                                     <input class="form-check-input"
                                            type="radio" name="sex"
@@ -337,30 +303,17 @@
                                            id="femaleDelete" disabled>
                                     <label for="femaleDelete">Female</label>
                                 </div>
-                                <br>
-                                <label for="deleteCity"><b>Enter city:</b></label>
-                                <br>
-                                <select id="deleteCity"
-                                        name="selectedCity"
-                                        class="custom-select" disabled>
-                                </select>
-                                <br>
-                                <br>
-                                <label for="deleteRoles"><b>Role</b></label>
-                                <br>
-                                <select class="form-control"
-                                        id="deleteRoles"
-                                        multiple
-                                        name="selectedRoles"
-                                        size="2" disabled>
-                                </select>
-                                <br><br>
+                                <div>
+                                    <label class="fw-bold pb-0 pt-2" for="cityDelete">City</label>
+                                    <select class="form-select" id="cityDelete" name="city"></select>
+                                </div>
+                                <div>
+                                    <label class="fw-bold pb-0 pt-2" for="rolesDelete">Roles</label>
+                                    <select class="form-select" id="rolesDelete" name="roles" multiple></select>
+                                </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
-                                        type="button">Close
-                                </button>
-                                <input class="btn btn-danger btn-sm" type="submit" value="Delete">
+                                <button class="btn btn-danger" type="submit">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -369,10 +322,9 @@
         </div>
     </div>
 </section>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
-<script th:src="@{/js/admin.js}"></script>
+<script src="/js/admin.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.AppService;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -26,9 +27,9 @@ public class RestUserController {
         return new ResponseEntity<>(appService.getAllUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> apiGetUserInfo(@PathVariable("id") int id) {
-        User user = appService.getUserById(id);
+    @GetMapping("/users/current")
+    public ResponseEntity<User> getUserInfo(Principal principal) {
+        User user = appService.getUserByUsername(principal.getName());
         return ResponseEntity.ok(user);
     }
 
